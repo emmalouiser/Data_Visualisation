@@ -4,6 +4,8 @@ library(jsonlite)
 library(httpuv)
 #install.packages("httr")
 library(httr)
+install.packages("plotly")
+install.packages('devtools')
 
 oauth_endpoints("github")
 
@@ -33,3 +35,22 @@ gitDF[gitDF$full_name == "jtleek/datasharing", "created_at"]
 
 # Code above has been sourced from the following website:
 #https://towardsdatascience.com/accessing-data-from-github-api-using-r-3633fb62cb08
+
+
+#Interrogate the API - my profile 
+myData = fromJSON("https://api.github.com/users/emmalouiser")
+myData$followers
+myData$public_repos
+
+myFollowers = fromJSON("https://api.github.com/users/emmalouiser/followers")
+myFollowers$login
+length(myFollowers$login)
+
+repos = fromJSON("https://api.github.com/users/emmalouiser/repos")
+repos$name
+repos$created_at
+
+myDataJSon = toJSON(myData, pretty = TRUE)
+myDataJSon
+
+
