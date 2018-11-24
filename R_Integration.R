@@ -59,23 +59,32 @@ getRepositories <- function(username)
 
 username <- 'emmalouiser'
 myFollowers <- getFollowers('emmalouiser')
-i <- 1
-while (length(myFollowers) < 500)
+labels <- c(username)
+toPlot <- c()
+for(i in 1:length(myFollowers))
 {
-  print(myFollowers)
-  myFollowers = unique(c(myFollowers, getFollowers(myFollowers[i])))
-  i <- i+1
+  their_username <- myFollowers[i]
+  labels = c(labels, their_username)
+  toPlot = c(toPlot, username, their_username)
 }
 
-followers <- getFollowers(username)
-toPlot = c()
-labels = c(username)
-for (i in 1:length(myFollowers))
+for(i in 1:length(myFollowers))
 {
-  toPlot = c(toPlot, username, myFollowers[i])
-  labels = c(labels, myFollowers[i])
+  username <- myFollowers[i]
+  theirFollowers <- getFollowers(username)
+  for (j in 1:length(theirFollowers))
+  {
+    if (is.element(theirFollowers[j], myFollowers))
+    {
+      toPlot = c(toPlot, username, theirFollowers[j])
+    }
+    else
+    {
+      next
+    }
+  }
+  
 }
-toPlot
 
 social_graph <- function(toPlot, labels)
 {
@@ -123,3 +132,4 @@ social_graph <- function(toPlot, labels)
   return (p)
 }
 social_graph(toPlot, labels)
+
