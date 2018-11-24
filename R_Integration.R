@@ -59,7 +59,7 @@ getRepositories <- function(username)
 
 myFollowers <- getFollowers('emmalouiser')
 i <- 1
-while (length(myFollowers) < 100)
+while (length(myFollowers) < 500)
 {
   print(myFollowers)
   myFollowers = unique(c(myFollowers, getFollowers(myFollowers[i])))
