@@ -57,6 +57,7 @@ getRepositories <- function(username)
   return (repos$name)
 }
 
+username <- 'emmalouiser'
 myFollowers <- getFollowers('emmalouiser')
 i <- 1
 while (length(myFollowers) < 500)
@@ -66,4 +67,59 @@ while (length(myFollowers) < 500)
   i <- i+1
 }
 
+followers <- getFollowers(username)
+toPlot = c()
+labels = c(username)
+for (i in 1:length(myFollowers))
+{
+  toPlot = c(toPlot, username, myFollowers[i])
+  labels = c(labels, myFollowers[i])
+}
+toPlot
 
+social_graph <- function(toPlot, labels)
+{
+  library(plotly)
+  library(quantmod)
+  library(igraph)
+
+  g<-make_graph(edges=c(toPlot))
+  G <- upgrade_graph(g)
+  L <- layout.circle(G)
+  vs <- V(G)
+  es <- as.data.frame(get.edgelist(G))
+  Nv <- length(vs)
+  Ne <- length(es[1]$V1)
+  Xn <- L[,1]
+  Yn <- L[,2]
+  
+  network <- plot_ly(x = ~Xn, y = ~Yn, mode = "markers", text = labels, hoverinfo = "text", type="scatter")
+  
+  edge_shapes <- list()
+  for(i in 1:Ne) 
+  {
+    v0 <- es[i,]$V1
+    v1 <- es[i,]$V2
+    
+    edge_shape = list(
+      type = "line",
+      line = list(color = "#030303", width = 0.3),
+      x0 = Xn[v0],
+      y0 = Yn[v0],
+      x1 = Xn[v1],
+      y1 = Yn[v1]
+    )
+    
+    edge_shapes[[i]] <- edge_shape
+  }
+  axis <- list(title = "", showgrid = FALSE, showticklabels = FALSE, zeroline = FALSE)
+  p <- layout(
+    network,
+    title = 'Followers',
+    shapes = edge_shapes,
+    xaxis = axis,
+    yaxis = axis
+  )
+  return (p)
+}
+social_graph(toPlot, labels)
