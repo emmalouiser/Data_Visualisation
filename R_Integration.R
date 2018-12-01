@@ -275,5 +275,35 @@ average_committs_plot <- function()
   return (chart_link)
 }
 
+average_committs_plot()
+
+
+getLanguages <- function()
+{
+  users <- c('emmalouiser', getFollowing('emmalouiser'))
+  languages = c()
+  for (i in 1:length(users))
+  {
+    URL <- paste("https://api.github.com/users/", users[i] , "/repos", sep="")
+    repos = fromJSON(URL) 
+    languages = c(languages, repos$language)
+  }
+  return(as.data.frame(table(languages)))
+}
+
+plot_languages <- function()
+{
+  languagesTable <- getLanguages()
+  
+  p <- plot_ly( x = ~languagesTable$languages, y = ~languagesTable$Freq, name = "Most Popular Languages", type = "bar")
+  chart_link = api_create(p, filename="languages_graph")
+  return (chart_link)
+  
+}
+
+  
+
+
+
 
 
