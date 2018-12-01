@@ -165,4 +165,24 @@ ratio_graph <- function()
 }
 
 
+repository_graph <- function()
+{
+  my_username <- 'emmalouiser'
+  users <- c(my_username)
+  myRepositories <- length(getRepositories(my_username))
+  repositories <- c(myRepositories)
+  
+  for(i in 1:length(myFollowing))
+  {
+    their_username <- myFollowing[i]
+    users = c(users, their_username)
+    theirRepositories <- length(getRepositories(their_username))
+    repositories <- c(repositories, theirRepositories)
+  }
+  
+  library(plotly)
+  p <- plot_ly( x = users, y = repositories, name = "Number of Repositories of Each User", type = "bar")
+  return (p)
+}
+
  
