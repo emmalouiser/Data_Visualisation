@@ -61,6 +61,7 @@ getRepositories <- function(username)
 {
   URL <- paste("https://api.github.com/users/", username , "/repos", sep="")
   repos = fromJSON(URL) 
+  repos$committs
   return (repos$name)
 }
 
@@ -97,7 +98,8 @@ make_social_graph <- function(toPlot, labels)
   social_graph(toPlot, labels)
 }
 
-
+#REFERENCE
+#Code below sourced from https://plot.ly/r/network-graphs/
 social_graph <- function(toPlot, labels)
 {
   library(plotly)
@@ -234,6 +236,6 @@ followers_graph <- function()
 
 
 followers_graph <- followers_graph() 
-repository_graph <- epository_graph()
+repository_graph <- repository_graph()
 social_graph <- make_social_graph()
 ratio <- ratio_graph()
