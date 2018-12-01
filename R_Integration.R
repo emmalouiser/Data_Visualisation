@@ -83,7 +83,6 @@ for(i in 1:length(myFollowers))
       next
     }
   }
-  
 }
 
 social_graph <- function(toPlot, labels)
@@ -133,3 +132,37 @@ social_graph <- function(toPlot, labels)
 }
 social_graph(toPlot, labels)
 
+
+ratio_graph <- function()
+{
+  my_username <- 'emmalouiser'
+  users <- c(my_username)
+  myFollowers <- getFollowers(my_username)
+  myFollowing <- getFollowing(my_username)
+  my_ratio <- length(myFollowers)/length(myFollowing)
+  ratios <- c(my_ratio)
+  
+  for(i in 1:length(myFollowing))
+  {
+    their_username <- myFollowing[i]
+    users = c(users, their_username)
+    theirFollowers <- getFollowers(their_username)
+    theirFollowing <- getFollowing(their_username)
+    if (theirFollowing == 0)
+    {
+      their_ratio <- length(theirFollowers)
+    }
+    else
+    {
+      their_ratio <- length(theirFollowers)/length(theirFollowing)
+    }
+    ratios <- c(ratios, their_ratio)
+  }
+  
+  library(plotly)
+  p <- plot_ly( x = users, y = ratios, name = "Ratio of Followers to Following", type = "bar")
+  return (p)
+}
+
+
+ 
