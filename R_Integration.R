@@ -26,7 +26,6 @@ gtoken <- config(token = github_token)
 req <- GET("https://api.github.com/users/emmalouiser/repos", gtoken)
 req <- GET("https://api.github.com/users/emmalouiser/following", gtoken)
 stop_for_status(req)
-
 json1 = content(req)
 gitDF = jsonlite::fromJSON(jsonlite::toJSON(json1))
 gitDF$login
@@ -234,8 +233,47 @@ followers_graph <- function()
   return (chart_link)
 }
 
-
 followers_graph <- followers_graph() 
 repository_graph <- repository_graph()
 social_graph <- make_social_graph()
 ratio <- ratio_graph()
+
+
+getAvgCommitts <- function()
+{
+  users <- c('emmalouiser', getFollowing('emmalouiser'))
+  avg_committs = c()
+  for (i in 1:length(users))
+  {
+    URL <- paste("https://api.github.com/users/", users[i] , "/repos", sep="")
+    req <- GET(URL, gtoken)
+    json1 = content(req)
+    gitDF = jsonlite::fromJSON(jsonlite::toJSON(json1))
+    list_repos <- as.vector(gitDF$name)
+    
+    numberofcommits = c()
+    for (j in 1:length(list_repos))
+    {
+      URL <- paste("https://api.github.com/repos/", users[i] , "/", list_repos[j], "/commits", sep="")
+      req <- GET(URL, gtoken)
+      json1 = content(req)
+      gitDF = jsonlite::fromJSON(jsonlite::toJSON(json1))
+      numberofcommits = c(numberofcommits, length(gitDF$commit$committer$name))
+    }
+    avg_committs = c(avg_committs, mean(numberofcommits))
+  }
+  return(avg_committs)
+}
+
+average_committs_plot <- function()
+{
+  avg_committs <- getAvgCommitts()
+  users <- c('emmalouiser', getFollowing('emmalouiser'))
+  library(plotly)
+  p <- plot_ly( x = ~users, y = ~avg_committs, name = "Number of Repositories of Each User", type = "bar")
+  chart_link = api_create(p, filename="average_committs_graph")
+  return (chart_link)
+}
+
+
+
