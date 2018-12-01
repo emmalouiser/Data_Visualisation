@@ -185,4 +185,24 @@ repository_graph <- function()
   return (p)
 }
 
- 
+followers_graph <- function()
+{
+  my_username <- 'emmalouiser'
+  users <- c(my_username)
+  myFollowers <- length(getFollowers(my_username))
+  followers <- c(myFollowers)
+  
+  for(i in 1:length(myFollowing))
+  {
+    their_username <- myFollowing[i]
+    users = c(users, their_username)
+    theirFollowers <- length(getFollowers(their_username))
+    followers <- c(followers, theirFollowers)
+  }
+  
+  library(plotly)
+  p <- plot_ly( x = users, y = followers, name = "Number of Repositories of Each User", type = "bar")
+  return (p)
+}
+
+followers_graph() 
