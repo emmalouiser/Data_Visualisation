@@ -36,6 +36,11 @@ gitDF[gitDF$full_name == "emmalouiser/Data_Visualisation", "created_at"]
 # Code above has been sourced from the following website:
 #https://towardsdatascience.com/accessing-data-from-github-api-using-r-3633fb62cb08
 
+#Connecting to my Plotly account 
+Sys.setenv("plotly_username"="emmalouiser")
+Sys.setenv("plotly_api_key"="BfyUmOXhR5ez4G1FlOqe")
+
+#Function that returns a list of the provided user's followers. 
 getFollowers <- function(username)
 {
   URL <- paste("https://api.github.com/users/", username , "/followers", sep="")
@@ -43,6 +48,7 @@ getFollowers <- function(username)
   return (followers$login)
 }
 
+#Function that returns a list of the people the provided user is following. 
 getFollowing <- function(username)
 {
   URL <- paste("https://api.github.com/users/", username , "/following", sep="")
@@ -50,6 +56,7 @@ getFollowing <- function(username)
   return (followers$login)
 }
 
+#Function that returns a list of the provided user's repositories
 getRepositories <- function(username)
 {
   URL <- paste("https://api.github.com/users/", username , "/repos", sep="")
@@ -57,33 +64,39 @@ getRepositories <- function(username)
   return (repos$name)
 }
 
-username <- 'emmalouiser'
-myFollowers <- getFollowers('emmalouiser')
-labels <- c(username)
-toPlot <- c()
-for(i in 1:length(myFollowers))
+#Function that draws a netowrk graph of me and my followers to see who follows who. 
+make_social_graph <- function(toPlot, labels)
 {
-  their_username <- myFollowers[i]
-  labels = c(labels, their_username)
-  toPlot = c(toPlot, username, their_username)
-}
-
-for(i in 1:length(myFollowers))
-{
-  username <- myFollowers[i]
-  theirFollowers <- getFollowers(username)
-  for (j in 1:length(theirFollowers))
+  username <- 'emmalouiser'
+  myFollowers <- getFollowers('emmalouiser')
+  labels <- c(username)
+  toPlot <- c()
+  for(i in 1:length(myFollowers))
   {
-    if (is.element(theirFollowers[j], myFollowers))
+    their_username <- myFollowers[i]
+    labels = c(labels, their_username)
+    toPlot = c(toPlot, username, their_username)
+  }
+  
+  for(i in 1:length(myFollowers))
+  {
+    username <- myFollowers[i]
+    theirFollowers <- getFollowers(username)
+    for (j in 1:length(theirFollowers))
     {
-      toPlot = c(toPlot, username, theirFollowers[j])
-    }
-    else
-    {
-      next
+      if (is.element(theirFollowers[j], myFollowers))
+      {
+        toPlot = c(toPlot, username, theirFollowers[j])
+      }
+      else
+      {
+        next
+      }
     }
   }
+  social_graph(toPlot, labels)
 }
+
 
 social_graph <- function(toPlot, labels)
 {
@@ -128,11 +141,11 @@ social_graph <- function(toPlot, labels)
     xaxis = axis,
     yaxis = axis
   )
-  return (p)
+  chart_link = api_create(p, filename="social_graph")
+  return (chart_link)
 }
-social_graph(toPlot, labels)
 
-
+#Draws a bar chart of the ratio of the people I follow's followers to following. 
 ratio_graph <- function()
 {
   my_username <- 'emmalouiser'
@@ -161,10 +174,12 @@ ratio_graph <- function()
   
   library(plotly)
   p <- plot_ly( x = users, y = ratios, name = "Ratio of Followers to Following", type = "bar")
-  return (p)
+  chart_link = api_create(p, filename="ratio_graph")
+  return (chart_link)
 }
 
 
+#Bar chart that allows comparison of the number of repositories created by my users. 
 repository_graph <- function()
 {
   my_username <- 'emmalouiser'
@@ -182,15 +197,21 @@ repository_graph <- function()
   
   library(plotly)
   p <- plot_ly( x = users, y = repositories, name = "Number of Repositories of Each User", type = "bar")
-  return (p)
+  chart_link = api_create(p, filename="repository_graph")
+  return (chart_link)
 }
 
+#Function that creates a graph that allows comparison 
 followers_graph <- function()
 {
   my_username <- 'emmalouiser'
   users <- c(my_username)
-  myFollowers <- length(getFollowers(my_username))
-  followers <- c(myFollowers)
+  myFollowers <- (getFollowers(my_username))
+  myFollowing <- (getFollowing(my_username))
+  myFollowersNo <- length(getFollowers(my_username))
+  myFollowingNo <- length(getFollowing(my_username))
+  followers <- c(myFollowersNo)
+  following <- c(myFollowingNo)
   
   for(i in 1:length(myFollowing))
   {
@@ -198,11 +219,21 @@ followers_graph <- function()
     users = c(users, their_username)
     theirFollowers <- length(getFollowers(their_username))
     followers <- c(followers, theirFollowers)
+    theirFollowing <- length(getFollowing(their_username))
+    following <- c(following, theirFollowing)
   }
   
   library(plotly)
-  p <- plot_ly( x = users, y = followers, name = "Number of Repositories of Each User", type = "bar")
-  return (p)
+  data <- data.frame(users, followers, following)
+  p <- plot_ly(x = ~users, y = ~followers, type = 'bar', name = 'Followers') %>%
+    add_trace(y = ~following, name = 'Following') %>%
+    layout(yaxis = list(title = 'Number of Users'), barmode = 'group')
+  chart_link = api_create(p, filename="followers_graph")
+  return (chart_link)
 }
 
-followers_graph() 
+
+followers_graph <- followers_graph() 
+repository_graph <- epository_graph()
+social_graph <- make_social_graph()
+ratio <- ratio_graph()
